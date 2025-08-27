@@ -1,9 +1,9 @@
-SmartRecover — Fintech Debt Recovery Optimization Platform
+SmartRecover — Recoveries Platform Technical Demonstration
 ==========================================================
 
 [![CI](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml/badge.svg)](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml)
 
-SmartRecover is a technical demonstration platform showcasing production-quality microservices architecture, algorithmic processing, and operational monitoring patterns for software engineering interviews.
+SmartRecover is a technical demonstration of a recoveries platform: maximizing recovery of charged-off loans with priority processing, and minimizing discrepancies between internal and partner systems via event-driven and reconciliation patterns.
 
 Contents
 --------
