@@ -46,14 +46,18 @@ class PartnerSyncRecord(models.Model):
         blank=True,
     )
 
+    STATUS_PENDING = "PENDING"
+    STATUS_MATCHED = "MATCHED"
+    STATUS_DISCREPANCY = "DISCREPANCY"
+
     reconciliation_status = models.CharField(
         max_length=12,
         choices=[
-            ("PENDING", "Pending Sync"),
-            ("MATCHED", "Data Matched"),
-            ("DISCREPANCY", "Data Mismatch"),
+            (STATUS_PENDING, "Pending Sync"),
+            (STATUS_MATCHED, "Data Matched"),
+            (STATUS_DISCREPANCY, "Data Mismatch"),
         ],
-        default="PENDING",
+        default=STATUS_PENDING,
     )
 
     synced_at = models.DateTimeField(auto_now=True)
