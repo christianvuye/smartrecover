@@ -74,6 +74,13 @@ class SQSMessenger:
     def log_summary(self, count: int, first_ids: list[int]) -> None:
         """
         Print concise operational summary for prototype visibility.
+
+        Args:
+            count: Number of high-priority debtors to send.
+            first_ids: List of first debtor IDs to include in the summary.
+
+        Returns:
+            None
         """
         print(
             f"[SQS] Sending {count} high-priority debtors to Partner Sync Service; "
@@ -83,5 +90,15 @@ class SQSMessenger:
     def send_to_sqs(self, items: list[dict]) -> None:
         """
         Transmit items to SQS (prototype no-op; replace with boto3 in production).
+
+        Notes:
+            - For debugging, print the first 5 items to console.
+
+        Args:
+            items: List of dicts to send to SQS.
+
+        Returns:
+            None
         """
+        print(f"[SQS DEBUG] Payload format: {items[:5]}")
         return None
