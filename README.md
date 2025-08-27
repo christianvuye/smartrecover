@@ -3,8 +3,6 @@ SmartRecover — Fintech Debt Recovery Optimization Platform
 
 [![CI](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml/badge.svg)](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml)
 
-Repository: https://github.com/christianvuye/smartrecover
-
 SmartRecover is a production-quality debt recovery platform focused on maximizing recovery rates through intelligent prioritization and automated workflows. It demonstrates robust software engineering across algorithms, distributed systems, and cloud infrastructure.
 
 Contents
@@ -19,6 +17,7 @@ Contents
 - Performance Characteristics
 - Algorithmic Design
 - Roadmap
+- Project Links
 - Contributing
 - License
 
@@ -192,6 +191,11 @@ Roadmap
 - Kubernetes manifests/Helm charts
 - MySQL migrations and indexing strategy for scale
 - Monitoring with CloudWatch dashboards and alerts
+
+Project Links
+-------------
+
+- Repository: https://github.com/christianvuye/smartrecover
 
 Contributing
 ------------
