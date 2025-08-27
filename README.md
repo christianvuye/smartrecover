@@ -1,6 +1,10 @@
 SmartRecover — Fintech Debt Recovery Optimization Platform
 ==========================================================
 
+[![CI](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml/badge.svg)](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml)
+
+Repository: https://github.com/christianvuye/smartrecover
+
 SmartRecover is a production-quality debt recovery platform focused on maximizing recovery rates through intelligent prioritization and automated workflows. It demonstrates robust software engineering across algorithms, distributed systems, and cloud infrastructure.
 
 Contents
@@ -123,10 +127,22 @@ Flags:
 - `--threshold`: High priority threshold (default 500000)
 - `--dry-run`: Show top 10 by priority without processing
 
+Generate large-scale test data (balanced/high-risk/low-risk distributions):
+```
+python manage.py generate_test_debtors --count 50000 --distribution balanced --seed 42
+```
+
+Options:
+- `--count`: number of debtors to create (default 5000)
+- `--clear`: clear existing debtors before generating
+- `--distribution`: `balanced` | `high-risk` | `low-risk`
+- `--seed`: RNG seed for reproducibility
+- `--no-scores`: skip post-generation scoring pass
+
 API (Risk Assessment Service)
 ----------------------------
 
-Base path (example): `/risk-service/`
+Base path: `/api/risk_service/`
 
 - `GET /debtors/` — list debtors
 - `POST /debtors/` — create debtor
