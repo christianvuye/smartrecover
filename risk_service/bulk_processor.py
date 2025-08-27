@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from .models import Debtor, RiskScore
 from .risk_scorer import RiskScorer
+from .sqs_messenger import SQSMessenger
 
 
 class BulkProcessor:
@@ -23,7 +24,10 @@ class BulkProcessor:
     """
 
     def __init__(
-        self, batch_size: int = 100, high_priority_threshold: float = 500000
+        self,
+        batch_size: int = 100,
+        high_priority_threshold: float = 500000,
+        messenger: SQSMessenger | None = None,
     ) -> None:
         """
         Initialize processor configuration and state.
@@ -36,6 +40,7 @@ class BulkProcessor:
         Args:
             batch_size: Debtors processed per iteration (resource management)
             high_priority_threshold: Threshold for flagging high-priority accounts
+            messenger: SQSMessenger instance for high-priority notifications
 
         Returns:
             None
@@ -49,6 +54,7 @@ class BulkProcessor:
             "processing_time": 0,
             "errors": [],
         }
+        self.messenger = messenger
 
     def calculate_priority(self, debtor: Debtor) -> float:
         """
@@ -223,6 +229,9 @@ class BulkProcessor:
                 batch_results.append(error_result)
                 self._record_error(debtor_id, str(e), "debtor_processing")
 
+        # After finishing the batch, delegate high-priority notifications
+        self._notify_high_priority_debtors(batch_results)
+
         return batch_results
 
     def _process_single_debtor(self, debtor: Debtor) -> dict[str, object]:
@@ -250,6 +259,7 @@ class BulkProcessor:
             "risk_score": score_result["total_score"],
             "risk_level": score_result["risk_level"],
             "debt_amount": float(debtor.total_debt_amount),
+            "payment_status": debtor.payment_status,
             "processed_at": timezone.now().isoformat(),
             "status": "success",
         }
@@ -278,6 +288,38 @@ class BulkProcessor:
             "error_message": error_message,
             "processed_at": timezone.now().isoformat(),
         }
+
+    def _notify_high_priority_debtors(self, batch_results: list[dict]) -> None:
+        """
+        Send high-priority debtors to configured messenger.
+
+        Args:
+            batch_results: list[dict] — Per-debtor results for this processed batch.
+
+        Returns:
+            None
+        """
+        messenger = self.messenger
+        if messenger is not None:
+            high_priority_results: list[dict] = []
+            for result in batch_results:
+                if result.get("status") != "success":
+                    continue
+                priority_score = result.get("priority_score", 0)
+                if priority_score > self.high_priority_threshold:
+                    high_priority_results.append(result)
+
+            if high_priority_results:
+                message_result = messenger.send_high_priority_batch(
+                    high_priority_results
+                )
+
+                if "messages_sent" not in self.stats:
+                    self.stats["messages_sent"] = 0
+                    self.stats["total_messaged_debtors"] = 0
+
+                self.stats["messages_sent"] += 1
+                self.stats["total_messaged_debtors"] += message_result["count"]
 
     def process_all_debtors(
         self, queryset: QuerySet | None = None
@@ -346,6 +388,8 @@ class BulkProcessor:
                 "processing_time_seconds": self.stats["processing_time"],
                 "batches_processed": batch_count,
                 "errors_count": len(self.stats["errors"]),
+                "messages_sent": self.stats.get("messages_sent", 0),
+                "total_messaged_debtors": self.stats.get("total_messaged_debtors", 0),
             },
             "detailed_results": all_results[:10],
             "errors": self.stats["errors"],

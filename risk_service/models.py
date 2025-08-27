@@ -1,5 +1,5 @@
 """
-Django ORM models for debt recovery domain.
+Django ORM models for debt risk assessment.
 
 Notes:
     - Debtor stores inputs for scoring; RiskScore stores computed results.
@@ -13,6 +13,8 @@ from .choices import (
     EMPLOYMENT_STATUS_CHOICES,
     FAMILY_SITUATION_CHOICES,
     INDUSTRY_SECTOR_CHOICES,
+    PAYMENT_STATUS_CHOICES,
+    PAYMENT_UNPAID,
 )
 
 
@@ -47,8 +49,13 @@ class Debtor(models.Model):
         choices=FAMILY_SITUATION_CHOICES,
         help_text="Family situation affects financial stability assessment",
     )
+    payment_status = models.CharField(
+        max_length=7,
+        choices=PAYMENT_STATUS_CHOICES,
+        default=PAYMENT_UNPAID,
+        help_text="Current payment status of the debt",
+    )
 
-    # Timestamps for auditing
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

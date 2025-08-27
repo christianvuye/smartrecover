@@ -17,6 +17,8 @@ from risk_service.choices import (
     FAMILY_SINGLE_WITH_DEPENDENTS,
     INDUSTRY_HEALTHCARE,
     INDUSTRY_HOSPITALITY,
+    PAYMENT_PARTIAL,
+    PAYMENT_UNPAID,
 )
 from risk_service.models import Debtor, RiskScore
 from risk_service.risk_scorer import RiskScorer
@@ -37,6 +39,7 @@ class Command(BaseCommand):
             contract_type=CONTRACT_PERMANENT,
             industry_sector=INDUSTRY_HEALTHCARE,
             family_situation=FAMILY_MARRIED_DUAL_INCOME,
+            payment_status=PAYMENT_UNPAID,
         )
 
         high_risk = Debtor.objects.create(
@@ -48,6 +51,7 @@ class Command(BaseCommand):
             contract_type=CONTRACT_FREELANCE,
             industry_sector=INDUSTRY_HOSPITALITY,
             family_situation=FAMILY_SINGLE_WITH_DEPENDENTS,
+            payment_status=PAYMENT_PARTIAL,
         )
 
         scorer = RiskScorer()

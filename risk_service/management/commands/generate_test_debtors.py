@@ -30,6 +30,9 @@ from risk_service.choices import (
     INDUSTRY_HEALTHCARE,
     INDUSTRY_HOSPITALITY,
     INDUSTRY_TECHNOLOGY,
+    PAYMENT_PAID,
+    PAYMENT_PARTIAL,
+    PAYMENT_UNPAID,
 )
 from risk_service.models import Debtor, RiskScore
 from risk_service.risk_scorer import RiskScorer
@@ -124,9 +127,7 @@ class Command(BaseCommand):
             batch_debtors = []
 
             for i in range(batch_start, batch_end):
-                debtor_data = self._generate_debtor_profile(
-                    i + 1, options["distribution"]
-                )
+                debtor_data = self._generate_debtor_profile(options["distribution"])
                 batch_debtors.append(Debtor(**debtor_data))
 
             Debtor.objects.bulk_create(batch_debtors)
@@ -141,9 +142,9 @@ class Command(BaseCommand):
             self.stdout.write("Computing risk scores...")
             self._compute_risk_scores(scorer, progress_every=options["progress_every"])
 
-        self._display_generation_stats(count)
+        self._display_generation_stats()
 
-    def _generate_debtor_profile(self, index: int, distribution: str) -> dict:
+    def _generate_debtor_profile(self, distribution: str) -> dict:
         """
         Generate a debtor profile with controlled risk distribution.
 
@@ -153,7 +154,6 @@ class Command(BaseCommand):
             - Uses cent-precision to avoid float↔Decimal artifacts.
 
         Args:
-            index: int — Sequence number (for reproducibility/hooks).
             distribution: str — One of {"balanced", "high-risk", "low-risk"}.
 
         Returns:
@@ -324,6 +324,14 @@ class Command(BaseCommand):
         ]
         family_situation = self._weighted_choice(family_choices, risk_bias)
 
+        payment_rand = random.random()
+        if payment_rand < 0.7:
+            payment_status = PAYMENT_UNPAID
+        elif payment_rand < 0.9:
+            payment_status = PAYMENT_PARTIAL
+        else:
+            payment_status = PAYMENT_PAID
+
         return {
             "name": name,
             "total_debt_amount": debt_amount,
@@ -333,6 +341,7 @@ class Command(BaseCommand):
             "contract_type": contract_type,
             "industry_sector": industry_sector,
             "family_situation": family_situation,
+            "payment_status": payment_status,
         }
 
     def _weighted_choice(self, choices, risk_bias):
@@ -391,16 +400,13 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stdout.write(f"Error scoring debtor {debtor.id}: {e}")
 
-    def _display_generation_stats(self, expected_count: int):
+    def _display_generation_stats(self):
         """
         Display statistics about the generated dataset.
 
         Notes:
             - Summarizes counts and risk distribution.
             - Shows debt ranges and a top priority preview.
-
-        Args:
-            expected_count: int — Intended number of generated debtors.
 
         Returns:
             None
