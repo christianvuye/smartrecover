@@ -1,0 +1,121 @@
+"""
+Field choices used by risk_service models.
+
+Notes:
+    - Enumerates contract, industry, family, and employment categories.
+    - Designed for use in model field choices and scoring lookups.
+"""
+
+# Contract type choices
+CONTRACT_PERMANENT = "PERMANENT"
+CONTRACT_CONTRACT = "CONTRACT"
+CONTRACT_TEMPORARY = "TEMPORARY"
+CONTRACT_FREELANCE = "FREELANCE"
+
+CONTRACT_TYPE_CHOICES = [
+    (CONTRACT_PERMANENT, "Permanent"),
+    (CONTRACT_CONTRACT, "Contract"),
+    (CONTRACT_TEMPORARY, "Temporary"),
+    (CONTRACT_FREELANCE, "Freelance"),
+]
+
+# Industry sector choices (organized by risk level)
+# Low Risk (Stable Industries)
+INDUSTRY_HEALTHCARE = "HEALTHCARE"
+INDUSTRY_EDUCATION = "EDUCATION"
+INDUSTRY_GOVERNMENT = "GOVERNMENT"
+INDUSTRY_UTILITIES = "UTILITIES"
+INDUSTRY_INSURANCE = "INSURANCE"
+INDUSTRY_TECHNOLOGY = "TECHNOLOGY"
+
+# Medium Risk
+INDUSTRY_FINANCE = "FINANCE"
+INDUSTRY_MANUFACTURING = "MANUFACTURING"
+INDUSTRY_PROFESSIONAL_SERVICES = "PROFESSIONAL_SERVICES"
+INDUSTRY_TELECOMMUNICATIONS = "TELECOMMUNICATIONS"
+INDUSTRY_TRANSPORTATION = "TRANSPORTATION"
+
+# Higher Risk (Volatile Industries)
+INDUSTRY_RETAIL = "RETAIL"
+INDUSTRY_HOSPITALITY = "HOSPITALITY"
+INDUSTRY_CONSTRUCTION = "CONSTRUCTION"
+INDUSTRY_ENERGY = "ENERGY"
+INDUSTRY_ENTERTAINMENT = "ENTERTAINMENT"
+INDUSTRY_REAL_ESTATE = "REAL_ESTATE"
+
+INDUSTRY_SECTOR_CHOICES = [
+    # Low Risk (Stable Industries)
+    (INDUSTRY_HEALTHCARE, "Healthcare"),
+    (INDUSTRY_EDUCATION, "Education"),
+    (INDUSTRY_GOVERNMENT, "Government"),
+    (INDUSTRY_UTILITIES, "Utilities"),
+    (INDUSTRY_INSURANCE, "Insurance"),
+    (INDUSTRY_TECHNOLOGY, "Technology"),
+    # Medium Risk
+    (INDUSTRY_FINANCE, "Finance"),
+    (INDUSTRY_MANUFACTURING, "Manufacturing"),
+    (INDUSTRY_PROFESSIONAL_SERVICES, "Professional Services"),
+    (INDUSTRY_TELECOMMUNICATIONS, "Telecommunications"),
+    (INDUSTRY_TRANSPORTATION, "Transportation"),
+    # Higher Risk (Volatile Industries)
+    (INDUSTRY_RETAIL, "Retail"),
+    (INDUSTRY_HOSPITALITY, "Hospitality"),
+    (INDUSTRY_CONSTRUCTION, "Construction"),
+    (INDUSTRY_ENERGY, "Energy"),
+    (INDUSTRY_ENTERTAINMENT, "Entertainment"),
+    (INDUSTRY_REAL_ESTATE, "Real Estate"),
+]
+
+# Family situation choices (organized by risk level)
+# Lower Risk (More Stability/Income)
+FAMILY_MARRIED_DUAL_INCOME = "MARRIED_DUAL_INCOME"
+FAMILY_MARRIED_SINGLE_INCOME = "MARRIED_SINGLE_INCOME"
+FAMILY_SINGLE_NO_DEPENDENTS = "SINGLE_NO_DEPENDENTS"
+
+# Medium Risk
+FAMILY_UNMARRIED_LIVING_TOGETHER = "UNMARRIED_LIVING_TOGETHER"
+FAMILY_DIVORCED_NO_DEPENDENTS = "DIVORCED_NO_DEPENDENTS"
+
+# Higher Risk (Higher Expenses/Less Stability)
+FAMILY_SINGLE_WITH_DEPENDENTS = "SINGLE_WITH_DEPENDENTS"
+FAMILY_DIVORCED_WITH_DEPENDENTS = "DIVORCED_WITH_DEPENDENTS"
+FAMILY_WIDOWED_WITH_DEPENDENTS = "WIDOWED_WITH_DEPENDENTS"
+
+FAMILY_SITUATION_CHOICES = [
+    # Lower Risk (More Stability/Income)
+    (FAMILY_MARRIED_DUAL_INCOME, "Married - Dual Income"),
+    (FAMILY_MARRIED_SINGLE_INCOME, "Married - Single Income"),
+    (FAMILY_SINGLE_NO_DEPENDENTS, "Single - No Dependents"),
+    # Medium Risk
+    (FAMILY_UNMARRIED_LIVING_TOGETHER, "Unmarried Living Together"),
+    (FAMILY_DIVORCED_NO_DEPENDENTS, "Divorced - No Dependents"),
+    # Higher Risk (Higher Expenses/Less Stability)
+    (FAMILY_SINGLE_WITH_DEPENDENTS, "Single - With Dependents"),
+    (FAMILY_DIVORCED_WITH_DEPENDENTS, "Divorced - With Dependents"),
+    (FAMILY_WIDOWED_WITH_DEPENDENTS, "Widowed - With Dependents"),
+]
+
+# Employment status choices (organized by risk level)
+# Lower Risk
+EMPLOYMENT_EMPLOYED = "EMPLOYED"
+EMPLOYMENT_GOVERNMENT = "GOVERNMENT_EMPLOYED"
+
+# Medium Risk
+EMPLOYMENT_SELF_EMPLOYED = "SELF_EMPLOYED"
+EMPLOYMENT_RETIRED = "RETIRED"
+
+# Higher Risk
+EMPLOYMENT_UNEMPLOYED = "UNEMPLOYED"
+EMPLOYMENT_STUDENT = "STUDENT"
+
+EMPLOYMENT_STATUS_CHOICES = [
+    # Lower Risk
+    (EMPLOYMENT_EMPLOYED, "Employed"),
+    (EMPLOYMENT_GOVERNMENT, "Government Employed"),
+    # Medium Risk
+    (EMPLOYMENT_SELF_EMPLOYED, "Self Employed"),
+    (EMPLOYMENT_RETIRED, "Retired"),
+    # Higher Risk
+    (EMPLOYMENT_UNEMPLOYED, "Unemployed"),
+    (EMPLOYMENT_STUDENT, "Student"),
+]
