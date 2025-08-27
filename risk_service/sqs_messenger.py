@@ -24,22 +24,64 @@ class SQSMessenger:
             high_priority_results: List of debtor processing results above threshold.
 
         Returns:
-            dict: Summary with count, first_ids, and timestamp (for testing/observability).
+            dict: Minimal summary for metrics: {"count": int}.
         """
-        sent_at = datetime.now(timezone.utc).isoformat()
         count = len(high_priority_results)
+        if count == 0:
+            return {"count": 0}
+
+        sent_at = datetime.now(timezone.utc).isoformat()
+        payload = self.create_payload(high_priority_results, sent_at)
 
         first_ids: list[int] = []
-        for result in high_priority_results[:MAX_LOGGED_DEBTOR_IDS]:
+        for item in payload[:MAX_LOGGED_DEBTOR_IDS]:
+            if item.get("debtor_id") is not None:
+                first_ids.append(item["debtor_id"])
+
+        self.log_summary(count, first_ids)
+        self.send_to_sqs(payload)
+
+        return {"count": count}
+
+    def create_payload(self, results: list[dict], sent_at: str) -> list[dict]:
+        """
+        Create normalized payload items for Partner Sync Service.
+
+        Args:
+            results: Raw debtor processing results from BulkProcessor.
+            sent_at: ISO8601 timestamp to include per item.
+
+        Returns:
+            list[dict]: Normalized items with required fields.
+        """
+        payload: list[dict] = []
+        for result in results:
             debtor_id = result.get("debtor_id")
-            if debtor_id is not None:
-                first_ids.append(debtor_id)
+            if debtor_id is None:
+                print("[SQS] Warning: Skipping result with missing debtor_id")
+                continue
+            internal_balance = result.get("debt_amount")
+            internal_status = result.get("payment_status")
+            item = {
+                "debtor_id": debtor_id,
+                "internal_balance": internal_balance,
+                "internal_status": internal_status,
+                "processed_at": sent_at,
+            }
+            payload.append(item)
+        return payload
 
-        if count > 0:
-            print(
-                f"[SQS] Sending {count} high-priority debtors to Partner Sync Service; "
-                f"first_ids={first_ids}"
-            )
-            # TODO: For production, use boto3 to send to actual SQS queue
+    def log_summary(self, count: int, first_ids: list[int]) -> None:
+        """
+        Print concise operational summary for prototype visibility.
+        """
+        print(
+            f"[SQS] Sending {count} high-priority debtors to Partner Sync Service; "
+            f"first_ids={first_ids}"
+        )
 
-        return {"count": count, "first_ids": first_ids, "timestamp": sent_at}
+    def send_to_sqs(self, items: list[dict]) -> None:
+        """
+        Transmit items to SQS (prototype no-op; replace with boto3 in production).
+        """
+        return None

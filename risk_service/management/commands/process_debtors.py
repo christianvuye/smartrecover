@@ -13,6 +13,7 @@ import json
 from django.core.management.base import BaseCommand
 
 from risk_service.bulk_processor import BulkProcessor
+from risk_service.sqs_messenger import SQSMessenger
 
 
 class Command(BaseCommand):
@@ -56,6 +57,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Output the final processing report as JSON",
         )
+        parser.add_argument(
+            "--enable-sqs",
+            action="store_true",
+            help="Enable SQS messaging for high-priority debtors",
+        )
 
     def handle(self, *args, **options):
         """
@@ -80,9 +86,12 @@ class Command(BaseCommand):
             f"Mode: {mode} | batch_size={options['batch_size']} | threshold={options['threshold']} | top_k={options.get('top_k', 10)}\n"
         )
 
+        messenger = SQSMessenger() if options["enable_sqs"] else None
+
         processor = BulkProcessor(
             batch_size=options["batch_size"],
             high_priority_threshold=options["threshold"],
+            messenger=messenger,
         )
 
         processor.stdout = self.stdout

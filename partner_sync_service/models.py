@@ -28,7 +28,7 @@ class PartnerSyncRecord(models.Model):
     )
 
     internal_status = models.CharField(
-        max_length=10,
+        max_length=7,
         choices=[
             ("UNPAID", "Unpaid"),
             ("PARTIAL", "Partial Payment"),
@@ -36,7 +36,7 @@ class PartnerSyncRecord(models.Model):
         ],
     )
     external_status = models.CharField(
-        max_length=10,
+        max_length=7,
         choices=[
             ("UNPAID", "Unpaid"),
             ("PARTIAL", "Partial Payment"),
@@ -47,7 +47,7 @@ class PartnerSyncRecord(models.Model):
     )
 
     reconciliation_status = models.CharField(
-        max_length=15,
+        max_length=12,
         choices=[
             ("PENDING", "Pending Sync"),
             ("MATCHED", "Data Matched"),
@@ -69,4 +69,4 @@ class PartnerSyncRecord(models.Model):
         Returns:
             str: Partner name, debtor id, and reconciliation status.
         """
-        return f"{self.partner_name} • Debtor {self.debtor_id} • {self.status}"
+        return f"{self.partner_name} • Debtor {self.debtor_id} • {self.reconciliation_status}"
