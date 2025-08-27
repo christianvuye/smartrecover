@@ -42,3 +42,29 @@ class Command(BaseCommand):
             self.stdout.write(f"✅ Correctly caught non-array: {e}")
 
         self.stdout.write("\n🎯 MessageProcessor validation complete!")
+        self.stdout.write("\n=== Testing Full Integration ===")
+        try:
+            # Parse -> Simulate -> Create Records
+            parsed_data = processor.parse_message(test_message)
+            created_records = processor.create_sync_records(parsed_data)
+
+            self.stdout.write(
+                f"✅ Created {len(created_records)} PartnerSyncRecord entries"
+            )
+
+            # Show first record details
+            if created_records:
+                first_record = created_records[0]
+                self.stdout.write(f"Debtor {first_record.debtor_id}:")
+                self.stdout.write(
+                    f"  Internal: ${first_record.internal_balance} | {first_record.internal_status}"
+                )
+                self.stdout.write(
+                    f"  External: ${first_record.external_balance} | {first_record.external_status}"
+                )
+                self.stdout.write(f"  Status: {first_record.reconciliation_status}")
+
+        except Exception as e:
+            self.stdout.write(f"❌ Integration test failed: {e}")
+
+        self.stdout.write("\n🎯 Full message processing pipeline tested!")
