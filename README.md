@@ -3,19 +3,22 @@ SmartRecover — Fintech Debt Recovery Optimization Platform
 
 [![CI](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml/badge.svg)](https://github.com/christianvuye/smartrecover/actions/workflows/ci.yml)
 
-SmartRecover is a production-quality debt recovery platform focused on maximizing recovery rates through intelligent prioritization and automated workflows. It demonstrates robust software engineering across algorithms, distributed systems, and cloud infrastructure.
+SmartRecover is a technical demonstration platform showcasing production-quality microservices architecture, algorithmic processing, and operational monitoring patterns for software engineering interviews.
 
 Contents
 --------
 - Overview and Business Value
 - Technical Architecture
+- Service Definitions
+- Service Interaction
 - Installation and Setup
 - Usage (Management Commands)
 - API (Risk Assessment Service)
-- Development Workflow
+- Interview Demonstration Points
 - Deployment
 - Performance Characteristics
 - Algorithmic Design
+- Scope Boundaries
 - Roadmap
 - Project Links
 - Contributing
@@ -26,22 +29,24 @@ Overview and Business Value
 SmartRecover helps recovery teams focus on the highest ROI accounts first. By combining a composite risk score with debt amount and using a heap-based priority queue, SmartRecover orchestrates efficient, fault-tolerant batch processing at scale.
 
 - Prioritize accounts by business impact (risk × debt amount)
-- Scale to tens of thousands of debtors
+- Designed to scale to tens of thousands of debtors
 - Maintain robust operations with comprehensive error capture
 
 Technical Architecture
 ----------------------
 
+See also: docs/SystemArchitecture.md
+
 Microservices (current and planned):
 
 ```
                            +-----------------------+
-                           |  Debt Processing Svc  |
+                           |  Partner Sync Svc     |
                            |  (planned)            |
                            |  - AWS SQS consumer   |
                            +-----------+-----------+
                                        ^
-                                       | SQS (AWS)
+                                       | SQS (planned)
                                        v
  +----------------------+     +--------+--------+      +------------------+
  |  Risk Assessment Svc |     |  Database (RDS) |      |  Monitoring      |
@@ -54,9 +59,41 @@ Microservices (current and planned):
 
 - Language: Python 3.13
 - Framework: Django 5.2 (+ Django REST Framework)
-- Data: SQLite (local dev) → MySQL (RDS in prod)
-- Cloud: AWS (SQS, EC2/ECS or EKS, RDS)
+- Data: SQLite (configured for dev); MySQL (RDS) planned
+- Cloud (roadmap): AWS (SQS, EC2/ECS or EKS, RDS)
 - Containerization: Docker/Kubernetes (EKS) — roadmap
+
+Service Definitions
+-------------------
+
+Risk Assessment Service
+- Purpose: Demonstrate efficient algorithmic processing of large datasets using priority queues.
+- Core responsibilities: Composite scoring (hash map lookups), heap-based priority processing, batch patterns, error handling and metrics.
+- Technical implementation: Django app with `Debtor`/`RiskScore`, `BulkProcessor` using Python `heapq`, management commands, SQLite (dev); MySQL (prod) planned.
+- Interview value: Demonstrates efficient data structures, algorithmic complexity, and scalable processing patterns.
+
+Partner Sync Service
+- Purpose: Demonstrate distributed systems architecture and data reconciliation patterns between microservices.
+- Core responsibilities: Receive messages from Risk Service via SQS, simulate partner sync, discrepancy detection/resolution, exception workflows.
+- Technical implementation: Django app with planned `PartnerSyncRecord`/`DiscrepancyRecord`, SQS processing for decoupling, rule-based reconciliation with audit trails.
+- Interview value: Shows service communication patterns and financial data reconciliation.
+
+Service Interaction
+-------------------
+
+```
+Risk Service → SQS Queue → Partner Sync Service
+     ↓                            ↓
+Priority Processing         Data Reconciliation
+     ↓                            ↓
+Algorithmic Demo           Integration Patterns
+```
+
+Planned Message Flow
+1. Risk Service processes debtor records demonstrating heap algorithms.
+2. Sends messages to SQS queue: `{debtor_id, debt_amount, risk_score}`.
+3. Partner Sync Service receives messages demonstrating event-driven architecture.
+4. Shows reconciliation patterns with simulated partner data.
 
 Project Structure
 -----------------
@@ -64,12 +101,16 @@ Project Structure
 ```
 smartrecover/
   manage.py
+  docs/
+    SystemArchitecture.md
   risk_service/
     models.py           # Debtor, RiskScore
     risk_scorer.py      # Risk scoring engine
     bulk_processor.py   # Heap-based batch processor
     management/commands/process_debtors.py  # CLI entrypoint
     views.py, serializers.py, urls.py       # DRF API
+  partner_sync_service/  # Scaffolding for reconciliation demo (planned features)
+    apps.py, models.py, views.py, tests.py
   smartrecover/         # Django project settings/urls
 ```
 
@@ -140,6 +181,16 @@ Options:
 
 API (Risk Assessment Service)
 ----------------------------
+Interview Demonstration Points
+------------------------------
+
+- Distributed Systems: decoupled services communicating via message queues (planned)
+- Algorithms: heap-based priority processing; rule-based reconciliation (planned)
+- AWS Integration: SQS messaging; CloudWatch monitoring (planned)
+- Operational Engineering: error handling, batch processing, audit trails
+- System Design: event-driven architecture; service separation of concerns
+- Data Reconciliation: financial patterns for data consistency (planned)
+
 
 Base path: `/api/risk_service/`
 
@@ -153,10 +204,11 @@ Base path: `/api/risk_service/`
 Performance Characteristics
 ---------------------------
 
-- Handles 50,000+ debtors efficiently
+- Designed to handle 50,000+ debtors efficiently
 - O(log n) operations for extraction from the heap
 - Batch processing to keep memory bounded
-- Throughput ~1000+ debtors/second depending on hardware
+- Measured on Apple M2 (8GB RAM), 30,000 records, batch_size=1000: 505.6 debtors/second (processed 30,000 in 59.339s; 30 batches; 0 errors).
+- Throughput varies by hardware and dataset characteristics.
 
 Algorithmic Design
 ------------------
@@ -169,13 +221,29 @@ Algorithmic Design
 Development Workflow
 --------------------
 
-1) Create a feature branch
-2) Write code and tests
-3) Run `python manage.py test`
-4) Submit PR and ensure CI is green
+1) Local development only — this is a personal project.
+2) There is currently no test suite.
+3) Optional: run `python manage.py check` locally.
+4) CI runs a minimal Django system check.
 
 Deployment
 ----------
+Scope Boundaries
+----------------
+
+In Scope:
+- Core algorithmic processing demonstrations
+- Basic AWS integration (SQS, CloudWatch) — roadmap
+- Automated reconciliation logic patterns — roadmap
+- Simple monitoring and alerting — roadmap
+- Basic Kubernetes deployment — roadmap
+
+Out of Scope:
+- Complex ML algorithms
+- Real partner API integrations
+- Advanced fraud detection
+- Production-scale optimizations
+
 
 - Local: SQLite and Django dev server
 - Staging/Prod (roadmap):
@@ -186,7 +254,7 @@ Deployment
 Roadmap
 -------
 
-- Debt Processing Service (second microservice) consuming SQS
+- Partner Sync Service consuming SQS
 - AWS infrastructure-as-code
 - Kubernetes manifests/Helm charts
 - MySQL migrations and indexing strategy for scale
@@ -200,7 +268,7 @@ Project Links
 Contributing
 ------------
 
-Pull requests are welcome. Please include tests and ensure CI passes.
+This is a personal project; external contributions are not being accepted.
 
 License
 -------
